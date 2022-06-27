@@ -1,0 +1,17 @@
+
+  #formatter:
+  #  build:
+  #    context: .
+  #    args:
+  #      - DEV=true
+  #  ports:
+  #    - "8000:8000"
+  #  volumes:
+  #    - type: bind
+  #      source: ./src/homeflix
+  #      target: /app
+  #  command: >
+  #    sh -c "autopep8 /app --recursive --in-place --pep8-passes 5000"
+
+#formatter:
+  #  condition: service_completed_successfully

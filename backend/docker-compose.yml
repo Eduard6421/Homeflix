@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  homeflix:
+    build:
+      context: .
+      args:
+        - DEV=true
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./src/homeflix
+        target: /app
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=devpass
+
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=devpass
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "devdb", "-U", "devuser" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  db-data:
+
+
+secrets:
+  db_user:
+    file: ./config/db_user.txt
+  db_password:
+    file: ./config/db_password.txt
