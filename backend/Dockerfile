@@ -13,9 +13,12 @@ COPY ./Pipfile.lock /tmp/Pipfile.lock
 
 WORKDIR /tmp/
 
+RUN apt-get update -y
+
 RUN pip install --upgrade pip && pip install pipenv
 
-RUN if [ $DEV = true ]; \
+RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev python-dev && \
+    if [ $DEV = true ]; \
     then \
     pipenv install --dev --system; \
     else \
