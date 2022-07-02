@@ -1,9 +1,10 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
-from pyrsistent import optional
+from django.core.validators import MinLengthValidator
 
 
 class UserManager(BaseUserManager):
@@ -42,10 +43,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(_('password'), max_length=128)
     email = models.EmailField(_('email address'), unique=True, blank=False)
     is_active = models.BooleanField(_('is active'), default=True)
-    is_superuser = models.BooleanField(_('is admin'), default=False)
-    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
-    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    is_admin = models.BooleanField(_('is admin'), default=False)
     last_login = models.DateTimeField(_('last login'), auto_now=True)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
     USERNAME_FIELD = 'email'
 
@@ -62,5 +63,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-# class UserProfile(models.Model):
-#    user = models.OneToOneField(get_user_model())
+class UserProfile(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, blank=False, null=False)
+    name = models.CharField(max_length=30, blank=False, null=False,
+                            validators=[MinLengthValidator(1)])
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)

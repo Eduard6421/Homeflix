@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext as _
-
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password as pwd_validator
+from user.models import UserProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,3 +57,11 @@ class LoginSerializer(serializers.Serializer):
             return user
 
         raise serializers.ValidationError('Invalid login')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'name', 'user')
+        read_only_fields = ('user',)
