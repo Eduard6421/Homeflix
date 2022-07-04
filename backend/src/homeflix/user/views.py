@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from knox.auth import TokenAuthentication
-from user.permissions import CreateOrDeleteAdminOnly
+from user.permissions import UserViewPermission, IsAdmin
+from rest_framework.permissions import IsAuthenticated
 from user.serializers import UserProfileSerializer
 from user.models import UserProfile
 
@@ -8,7 +9,7 @@ from user.models import UserProfile
 class UserProfileViewSet(viewsets.ModelViewSet):
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [CreateOrDeleteAdminOnly]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
     queryset = UserProfile.objects.all()

@@ -1,5 +1,5 @@
 """
-Tests for the user API
+Tests for the user Model
 """
 
 from django.forms import ValidationError

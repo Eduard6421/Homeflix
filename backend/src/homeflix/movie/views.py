@@ -1,6 +1,7 @@
 from knox.auth import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
+
+from user.permissions import IsAdmin, UserViewPermission
 from movie.models import Movie
 from movie.serialisers import MovieSerializer
 
@@ -10,7 +11,7 @@ from movie.serialisers import MovieSerializer
 class MovieViewSet(ModelViewSet):
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserViewPermission | IsAdmin]
     serializer_class = MovieSerializer
 
     queryset = Movie.objects.all()

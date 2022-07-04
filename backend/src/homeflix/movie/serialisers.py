@@ -5,7 +5,7 @@ from movie.models import Movie
 
 class MovieSerializer(serializers.ModelSerializer):
 
-    tags = UserSerializer(many=False, required=True)
+    #tags = UserSerializer(many=False, required=True)
 
     class Meta:
         model = Movie
