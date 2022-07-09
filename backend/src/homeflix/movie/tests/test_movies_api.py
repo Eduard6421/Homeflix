@@ -1,20 +1,20 @@
 """
-Tests for the auth API
+Tests for the Movies API
 """
-''''''
 
 
-from django.forms import ValidationError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from movie.models import Movie
 from rest_framework.test import APIClient
 from rest_framework import status
+
+
 MOVIE_URL = reverse('movie:movies-list')
 
 
-def movie_url(movie_id):
+def movie_detail(movie_id):
     '''Create and return a profie URL'''
     return reverse('movie:movies-detail', args=[movie_id])
 
@@ -47,7 +47,7 @@ class PublicMovieApiTests(TestCase):
         '''Unauthorized get profile'''
 
         res = self.client.get(
-            movie_url('random_movie'),
+            movie_detail('random_movie'),
         )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -73,14 +73,14 @@ class PublicMovieApiTests(TestCase):
         }
 
         res = self.client.patch(
-            movie_url('random'),
+            movie_detail('random'),
             payload
         )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
         res = self.client.put(
-            movie_url('random'),
+            movie_detail('random'),
             payload
         )
 
@@ -89,7 +89,7 @@ class PublicMovieApiTests(TestCase):
     def test_delete_movie_denied(self):
 
         res = self.client.delete(
-            movie_url('random'),
+            movie_detail('random'),
         )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -123,6 +123,16 @@ class PrivateMovieApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 2)
 
+    def test_post_movie(self):
+
+        payload = {
+            'title': 'randommovietitle'
+        }
+
+        res = self.client.post(MOVIE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_get_movie(self):
 
         superuser = create_superuser(
@@ -133,7 +143,7 @@ class PrivateMovieApiTest(TestCase):
             created_by=superuser
         )
 
-        res = self.client.get(movie_url(movie.id))
+        res = self.client.get(movie_detail(movie.id))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['title'], 'Jolly good show')
@@ -152,11 +162,11 @@ class PrivateMovieApiTest(TestCase):
             'title': 'newtitle'
         }
 
-        res = self.client.patch(movie_url(movie.id), payload)
+        res = self.client.patch(movie_detail(movie.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-        res = self.client.patch(movie_url(movie.id), payload)
+        res = self.client.patch(movie_detail(movie.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -170,7 +180,7 @@ class PrivateMovieApiTest(TestCase):
             created_by=superuser
         )
 
-        res = self.client.delete(movie_url(movie.id))
+        res = self.client.delete(movie_detail(movie.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -213,12 +223,23 @@ class PrivateAdminMovieApiTest(TestCase):
             created_by=superuser
         )
 
-        res = self.client.get(movie_url(movie.id))
+        res = self.client.get(movie_detail(movie.id))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['title'], 'Jolly good show')
 
-    def test_update_unauthorized_movie(self):
+    def test_post_movie(self):
+
+        payload = {
+            'title': 'randommovietitle'
+        }
+
+        res = self.client.post(MOVIE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['title'], payload['title'])
+
+    def test_update_movie(self):
 
         superuser = create_superuser(
             email='admin@admin.com', password='adminpass2')
@@ -232,7 +253,7 @@ class PrivateAdminMovieApiTest(TestCase):
             'title': 'newtitle'
         }
 
-        res = self.client.patch(movie_url(movie.id), payload)
+        res = self.client.patch(movie_detail(movie.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['title'], payload['title'])
@@ -241,7 +262,7 @@ class PrivateAdminMovieApiTest(TestCase):
             'title': 'updatedsecond'
         }
 
-        res = self.client.put(movie_url(movie.id), payload)
+        res = self.client.put(movie_detail(movie.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['title'], payload['title'])
@@ -256,7 +277,7 @@ class PrivateAdminMovieApiTest(TestCase):
             created_by=superuser
         )
 
-        res = self.client.delete(movie_url(movie.id))
+        res = self.client.delete(movie_detail(movie.id))
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Movie.objects.filter(id=movie.id).count(), 0)

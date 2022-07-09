@@ -45,6 +45,8 @@ class Tag(models.Model):
                                    related_name='created_tags',
                                    related_query_name='created_by',
                                    blank=False, null=False)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
 
 class Genre(models.Model):
@@ -62,6 +64,8 @@ class Genre(models.Model):
                                    related_name='created_genres',
                                    related_query_name='created_by',
                                    blank=False, null=False)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
 
 class Listing(models.Model):
@@ -88,3 +92,5 @@ class Listing(models.Model):
                                    related_name='created_listings',
                                    related_query_name='created_by',
                                    blank=False, null=False)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
